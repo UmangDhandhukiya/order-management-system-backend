@@ -10,7 +10,7 @@ const app = express();
 // ─── Middleware ────────────────────────────────────────────
 app.use(express.json());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'https://order-management-system-fronted.vercel.app/',
+  origin:'https://order-management-system-fronted.vercel.app/',
   credentials: true
 }));
 
