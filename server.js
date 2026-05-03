@@ -15,40 +15,10 @@ app.use(
   cors({
     origin: "https://order-management-system-fronted.vercel.app",
     credentials: true,
-  }),
+  })
 );
 
-app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Backend running successfully",
-  });
-});
-
-// ─── Routes ────────────────────────────────────────────────
-app.use("/api/prices", require("./routes/prices"));
-app.use("/api/submit", require("./routes/orders"));
-app.use("/api/admin", require("./routes/admin"));
-
-// ─── Health Check ──────────────────────────────────────────
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// ─── Global Error Handler ──────────────────────────────────
-app.use((err, req, res, next) => {
-  console.error("Server error:", err.message);
-
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal server error",
-  });
-});
-
-// ─── MongoDB Connection Cache (Important for Vercel) ──────
+// ─── MongoDB Connection Cache ──────────────────────────────
 let isConnected = false;
 
 const connectDB = async () => {
@@ -89,14 +59,49 @@ const seedPrices = async () => {
   }
 };
 
-// ─── Vercel Serverless Handler ─────────────────────────────
+// ─── Connect DB Before Routes ──────────────────────────────
 app.use(async (req, res, next) => {
-  await connectDB();
-  next();
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed",
+    });
+  }
 });
 
-// ❌ REMOVE app.listen()
-// app.listen(PORT)
+// ─── Root Route ────────────────────────────────────────────
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend running successfully",
+  });
+});
 
-// ✅ Export app for Vercel
+// ─── Routes ────────────────────────────────────────────────
+app.use("/api/prices", require("./routes/prices"));
+app.use("/api/submit", require("./routes/orders"));
+app.use("/api/admin", require("./routes/admin"));
+
+// ─── Health Check ──────────────────────────────────────────
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── Global Error Handler ──────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error("Server error:", err.message);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error",
+  });
+});
+
+// ─── Export for Vercel ─────────────────────────────────────
 module.exports = app;
