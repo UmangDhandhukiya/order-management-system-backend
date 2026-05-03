@@ -14,8 +14,9 @@ app.use(express.json());
 app.use(
   cors({
     origin: "https://order-management-system-fronted.vercel.app",
+
     credentials: true,
-  })
+  }),
 );
 
 // ─── MongoDB Connection Cache ──────────────────────────────
