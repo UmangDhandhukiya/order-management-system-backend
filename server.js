@@ -15,8 +15,15 @@ app.use(
   cors({
     origin: "https://order-management-system-fronted.vercel.app",
     credentials: true,
-  })
+  }),
 );
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend running successfully",
+  });
+});
 
 // ─── Routes ────────────────────────────────────────────────
 app.use("/api/prices", require("./routes/prices"));
